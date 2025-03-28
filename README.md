@@ -1,191 +1,261 @@
-# Zadanie-Nasledovaniya#include <iostream>
+# Zadanie-Nasledovaniya 
+#include <iostream>
 #include <vector>
 #include <string>
-#include <limits> // Для std::numeric_limits
+#include <limits>
 
 using namespace std;
 
-class Building {
+// Базовый класс Техника
+class Equipment {
 protected:
-    double area;
-    string address;
-
-public:
-    Building(double a, string addr) : area(a), address(addr) {}
-    virtual void display() const {
-        cout << "Address: " << address << ", Area: " << area << " sq. meters" << endl;
-    }
-    virtual ~Building() {}
+    double price;
+    string manufacturer;
     
-    bool operator==(const Building& other) const {
-        return area == other.area && address == other.address;
-    }
-};
-
-class House : public Building {
 public:
-    House(double a, string addr) : Building(a, addr) {}
-    void display() const override {
-        cout << "House - ";
-        Building::display();
+    Equipment() : price(0), manufacturer("") {}
+    
+    Equipment(double p, string m) {
+        setPrice(p);
+        manufacturer = m;
     }
-};
-
-class Garage : public Building {
-public:
-    Garage(double a, string addr) : Building(a, addr) {}
-    void display() const override {
-        cout << "Garage - ";
-        Building::display();
-    }
-};
-
-class Apartment : public Building {
-public:
-    Apartment(double a, string addr) : Building(a, addr) {}
-    void display() const override {
-        cout << "Apartment - ";
-        Building::display();
-    }
-};
-
-// Функция для получения корректного целочисленного ввода
-int getValidIntInput() {
-    int input;
-    while (true) {
-        cin >> input;
-        if (cin.fail() || input <= 0) {
-            cin.clear(); // Очистка флага ошибки
-            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Игнорирование некорректного ввода
-            cout << "Please enter a positive integer: ";
-        } else {
-            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Игнорирование оставшегося ввода
-            return input;
+    
+    virtual void input() {
+        cout << "Введите производителя: ";
+        cin >> manufacturer;
+        
+        cout << "Введите цену: ";
+        while(!(cin >> price) || price < 0) {
+            cout << "Ошибка! Введите положительное число: ";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
         }
     }
-}
-
-// Функция для получения корректного строкового ввода
-string getValidStringInput() {
-    string input;
-    cout << "Enter the address: ";
-    getline(cin, input);
-    return input;
-}
-
-// Функция для получения корректного вещественного ввода
-double getValidDoubleInput() {
-    double input;
-    while (true) {
-        cin >> input;
-        if (cin.fail() || input <= 0) {
-            cin.clear(); // Очистка флага ошибки
-            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Игнорирование некорректного ввода
-            cout << "Please enter a positive number for the area: ";
-        } else {
-            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Игнорирование оставшегося ввода
-            return input;
-        }
+    
+    virtual void display() const {
+        cout << "Производитель: " << manufacturer << endl;
+        cout << "Цена: " << price << endl;
     }
-}
+    
+    void setPrice(double p) {
+        if(p >= 0) price = p;
+        else price = 0;
+    }
+    
+    bool operator==(const Equipment& other) const {
+        return price == other.price && manufacturer == other.manufacturer;
+    }
+    
+    Equipment operator+(const Equipment& other) const {
+        return Equipment(price + other.price, manufacturer + "+" + other.manufacturer);
+    }
+    
+    Equipment& operator++() {
+        price++;
+        return *this;
+    }
+    
+    virtual ~Equipment() {}
+};
+
+// Бытовая техника
+class HomeAppliance : public Equipment {
+    int powerConsumption;
+    string category;
+    
+public:
+    HomeAppliance() : Equipment(), powerConsumption(0), category("") {}
+    
+    HomeAppliance(double p, string m, int pc, string c) 
+        : Equipment(p, m), powerConsumption(pc), category(c) {}
+        
+    void input() override {
+        Equipment::input();
+        cout << "Введите потребляемую мощность (Вт): ";
+        while(!(cin >> powerConsumption) || powerConsumption < 0) {
+            cout << "Ошибка! Введите положительное число: ";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+        cout << "Введите категорию: ";
+        cin >> category;
+    }
+    
+    void display() const override {
+        Equipment::display();
+        cout << "Потребляемая мощность: " << powerConsumption << " Вт" << endl;
+        cout << "Категория: " << category << endl;
+    }
+};
+
+// Садовая техника
+class GardenEquipment : public Equipment {
+    double weight;
+    string type;
+    
+public:
+    GardenEquipment() : Equipment(), weight(0), type("") {}
+    
+    GardenEquipment(double p, string m, double w, string t) 
+        : Equipment(p, m), weight(w), type(t) {}
+        
+    void input() override {
+        Equipment::input();
+        cout << "Введите вес (кг): ";
+        while(!(cin >> weight) || weight < 0) {
+            cout << "Ошибка! Введите положительное число: ";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+        cout << "Введите тип: ";
+        cin >> type;
+    }
+    
+    void display() const override {
+        Equipment::display();
+        cout << "Вес: " << weight << " кг" << endl;
+        cout << "Тип: " << type << endl;
+    }
+};
+
+// Автомобильная техника
+class AutoEquipment : public Equipment {
+    int horsePower;
+    string model;
+    
+public:
+    AutoEquipment() : Equipment(), horsePower(0), model("") {}
+    
+    AutoEquipment(double p, string m, int hp, string mod) 
+        : Equipment(p, m), horsePower(hp), model(mod) {}
+        
+    void input() override {
+        Equipment::input();
+        cout << "Введите мощность (л.с.): ";
+        while(!(cin >> horsePower) || horsePower < 0) {
+            cout << "Ошибка! Введите положительное число: ";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+        cout << "Введите модель: ";
+        cin >> model;
+    }
+    
+    void display() const override {
+        Equipment::display();
+        cout << "Мощность: " << horsePower << " л.с." << endl;
+        cout << "Модель: " << model << endl;
+    }
+};
 
 int main() {
-    vector<Building*> buildings;
+    vector<Equipment*> items;
     int choice;
-
-    do {
-        cout << "\nMenu:\n";
-        cout << "1. Add a building\n";
-        cout << "2. Remove a building\n";
-        cout << "3. Display all buildings\n";
-        cout << "4. Compare two buildings\n";
-        cout << "5. Exit\n";
-        cout << "Enter your choice: ";
-        choice = getValidIntInput();
-
-        switch (choice) {
-            case 1: {
-                cout << "Choose the type of building:\n";
-                cout << "1. House\n";
-                cout << "2. Garage\n";
-                cout << "3. Apartment\n";
-                int type = getValidIntInput();
-
-                cout << "Enter the area: ";
-                double area = getValidDoubleInput(); // Используем новую функцию для ввода площади
-
-                string address = getValidStringInput();
-
-                Building* building = nullptr;
-                switch (type) {
-                    case 1:
-                        building = new House(area, address);
-                        break;
-                    case 2:
-                        building = new Garage(area, address);
-                        break;
-                    case 3:
-                        building = new Apartment(area, address);
-                        break;
-                    default:
-                        cout << "Invalid type." << endl;
-                        continue;
-                }
-                buildings.push_back(building);
-                cout << "Building added successfully!" << endl; // Подтверждение добавления
-                break;
+    
+    while(true) {
+        cout << "\nМеню:\n";
+        cout << "1. Добавить новый элемент\n";
+        cout << "2. Удалить элемент по индексу\n";
+        cout << "3. Вывести все элементы\n";
+        cout << "4. Сравнить два элемента\n";
+        cout << "5. Выход\n";
+        cout << "Выберите действие: ";
+        
+        while(!(cin >> choice) || choice < 1 || choice > 5) {
+            cout << "Ошибка! Выберите число от 1 до 5: ";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+        
+        if(choice == 1) {
+            cout << "\nВыберите тип техники:\n";
+            cout << "1. Бытовая техника\n";
+            cout << "2. Садовая техника\n";
+            cout << "3. Автомобильная техника\n";
+            
+            int type;
+            while(!(cin >> type) || type < 1 || type > 3) {
+                cout << "Ошибка! Выберите число от 1 до 3: ";
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
             }
-            case 2: {
-                cout << "Enter the index of the building to remove: ";
-                int index = getValidIntInput() - 1; // Индексы начинаются с 0
-                if (index >= 0 && index < buildings.size()) {
-                    delete buildings[index];
-                    buildings.erase(buildings.begin() + index);
-                    cout << "Building removed successfully." << endl; // Подтверждение удаления
-                } else {
-                    cout <<  cout << "Invalid index." << endl; // Уведомление о некорректном индексе
-                }
-                break;
+            
+            Equipment* newItem = nullptr;
+            switch(type) {
+                case 1: newItem = new HomeAppliance(); break;
+                case 2: newItem = new GardenEquipment(); break;
+                case 3: newItem = new AutoEquipment(); break;
             }
-            case 3: {
-                cout << "All buildings:\n";
-                for (size_t i = 0; i < buildings.size(); ++i) {
-                    cout << i + 1 << ". ";
-                    buildings[i]->display(); // Вывод информации о каждом здании
-                }
-                break;
+            
+            newItem->input();
+            items.push_back(newItem);
+            cout << "Элемент добавлен!\n";
+        }
+        else if(choice == 2) {
+            if(items.empty()) {
+                cout << "Список пуст!\n";
+                continue;
             }
-            case 4: {
-                cout << "Enter the indices of the two buildings to compare (1 to " << buildings.size() << "):\n";
-                int index1 = getValidIntInput() - 1; // Индексы начинаются с 0
-                int index2 = getValidIntInput() - 1; // Индексы начинаются с 0
-
-                if (index1 >= 0 && index1 < buildings.size() && index2 >= 0 && index2 < buildings.size()) {
-                    if (*buildings[index1] == *buildings[index2]) {
-                        cout << "The buildings are equal." << endl; // Сообщение о равенстве
-                    } else {
-                        cout << "The buildings are not equal." << endl; // Сообщение о неравенстве
-                    }
-                } else {
-                    cout << "Invalid indices." << endl; // Уведомление о некорректных индексах
-                }
-                break;
+            
+            cout << "Введите индекс для удаления (0-" << items.size()-1 << "): ";
+            int index;
+            while(!(cin >> index) || index < 0 || index >= items.size()) {
+                cout << "Ошибка! Введите корректный индекс: ";
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
             }
-            case 5: {
-                cout << "Exiting the program." << endl; // Сообщение о выходе
-                break;
+            
+            delete items[index];
+            items.erase(items.begin() + index);
+            cout << "Элемент удален!\n";
+        }
+        else if(choice == 3) {
+            if(items.empty()) {
+                cout << "Список пуст!\n";
+                continue;
             }
-            default: {
-                cout << "Invalid choice. Please try again." << endl; // Уведомление о некорректном выборе
-                break;
+            
+            for(size_t i = 0; i < items.size(); i++) {
+                cout << "\nЭлемент #" << i << ":\n";
+                items[i]->display();
             }
         }
-    } while (choice != 5);
-
-    // Освобождение памяти
-    for (Building* building : buildings) {
-        delete building; // Освобождение памяти для каждого здания
+        else if(choice == 4) {
+            if(items.size() < 2) {
+                cout << "Недостаточно элементов для сравнения!\n";
+                continue;
+            }
+            
+            cout << "Введите первый индекс (0-" << items.size()-1 << "): ";
+            int index1;
+            while(!(cin >> index1) || index1 < 0 || index1 >= items.size()) {
+                cout << "Ошибка! Введите корректный индекс: ";
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            }
+            
+            cout << "Введите второй индекс (0-" << items.size()-1 << "): ";
+            int index2;
+            while(!(cin >> index2) || index2 < 0 || index2 >= items.size()) {
+                cout << "Ошибка! Введите корректный индекс: ";
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            }
+            
+            if(*items[index1] == *items[index2])
+                cout << "Элементы равны!\n";
+            else
+                cout << "Элементы не равны!\n";
+        }
+        else if(choice == 5) {
+            break;
+        }
     }
-
-    return 0; // Завершение программы
+    
+    // Очистка памяти
+    for(auto item : items) {
+        delete item;
+    }
+    
+    return 0;
 }
